@@ -50,4 +50,4 @@ docker run -d -p 8091:80 -p 8092:443 --name nombre_del_contenedor pps10711828/3.
 
 Para mirar que funcione vamos al navegador y escribimos https://localhost:8092
 
-![php info nginx](/images/1.png)
+![php info nginx](images/1.png)
