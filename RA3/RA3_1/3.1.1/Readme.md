@@ -12,10 +12,10 @@ Se puede usar como base para desplegar aplicaciones web de manera más segura si
 ## Estructura del proyecto
 
 
- apache.conf # Configuración principal de Apache
- Dockerfile # Archivo para construir la imagen Docker
- index.html # Página principal de prueba
- site.conf # Configuración de VirtualHost
+- apache.conf # Configuración principal de Apache
+- Dockerfile # Archivo para construir la imagen Docker
+- index.html # Página principal de prueba
+- site.conf # Configuración de VirtualHost
  images/ # Carpeta donde guardar capturas de pantalla
 
 

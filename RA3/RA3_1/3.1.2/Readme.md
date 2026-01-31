@@ -18,10 +18,10 @@ En este proyecto, el WAF protege el servidor Apache que se ejecuta dentro del co
 
 ## Estructura del proyecto
 
-   Dockerfile #Construcción de la imagen WAF
-   index.html #Página de prueba
-   post.php #Formulario para el funcionamiento de la práctica
-   images #Carpeta donde guardar capturas de pantalla
+- Dockerfile #Construcción de la imagen WAF
+- index.html #Página de prueba
+- post.php #Formulario para el funcionamiento de la práctica
+- images #Carpeta donde guardar capturas de pantalla
 
 ## Requisitos
 - Docker instalado en el sistema
