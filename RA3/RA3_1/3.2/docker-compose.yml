@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  apache:
+    build: .
+    container_name: apache_ssl
+    ports:
+      - "80:80"
+      - "443:443"
+
