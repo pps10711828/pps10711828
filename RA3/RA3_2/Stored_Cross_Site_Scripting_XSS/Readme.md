@@ -32,7 +32,7 @@ Para evitar que el filtro del servidor detectara y eliminara la etiqueta, se alt
 ### 3. Ejecución y Persistencia
 Una vez enviado el formulario, el script se guarda permanentemente en el libro de visitas (Guestbook). Al cargar la página, el navegador ejecuta el código inyectado automáticamente.
 
-Captura de la ejecución exitosa:
+![Stored Cross Site Scripting (XSS)](images/14.stored_cross_site_xss.png)
 
 * Impacto: Se ha logrado extraer la cookie de sesión del usuario de forma automática y persistente al cargar el módulo.
 
