@@ -38,7 +38,7 @@ A pesar de que el ataque tomó significativamente más tiempo que en el nivel **
 
 ### Captura de la Ejecución Exitosa:
 
-![./images/1.fuerza_bruta.png](./1.fuerza%20bruta.png)
+![images/1.fuerza_bruta.png](./1.fuerza%20bruta.png)
 
 ---
 
